@@ -155,15 +155,6 @@ def main():
         print(f"対象カレンダー: {args.calendar_id}")
         print(f"対象月: {'今月' if args.month == 'current' else '来月'}")
         print(f"\n合計時間: {total_duration/60:.1f}時間 ({total_duration:.0f}分)")
-        
-        if matching_events:
-            print("\n該当イベント一覧:")
-            for event in matching_events:
-                start_time = datetime.fromisoformat(event['start'].replace('Z', '+00:00'))
-                print(f"- {start_time.strftime('%Y-%m-%d %H:%M')} : {event['summary']} "
-                      f"({event['duration']:.0f}分)")
-        else:
-            print("\n該当するイベントは見つかりませんでした。")
             
     except Exception as e:
         print(f"エラーが発生しました: {str(e)}")
