@@ -43,6 +43,7 @@ def transcribe_audio(gcs_uri):
         encoding=speech_v1.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=16000,
         language_code="ja-JP",
+        alternative_language_codes=["en-US"],  # 英語を追加
         enable_automatic_punctuation=True,
     )
 
