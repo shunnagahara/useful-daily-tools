@@ -2,7 +2,6 @@ import os
 from google.cloud import speech_v1
 from google.cloud import storage
 import ffmpeg
-from pydub import AudioSegment
 from datetime import datetime
 import argparse
 
