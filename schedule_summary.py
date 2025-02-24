@@ -114,6 +114,19 @@ def analyze_events(calendar_id, title, target_month):
     matching_events = []
     
     for event in events:
+        # イベントの開始時刻を取得
+        start_time_str = event['start'].get('dateTime')
+        if not start_time_str:  # 終日イベントの場合はスキップ
+            continue
+            
+        # イベントの開始時刻をdatetimeオブジェクトに変換
+        start_time = datetime.fromisoformat(start_time_str.replace('Z', '+00:00'))
+        
+        # 月の最終日のイベントはスキップ
+        _, last_day = calendar.monthrange(start_time.year, start_time.month)
+        if start_time.day == last_day:
+            continue
+            
         if title.lower() in event.get('summary', '').lower():
             duration = calculate_duration(event)
             if duration > 0:
