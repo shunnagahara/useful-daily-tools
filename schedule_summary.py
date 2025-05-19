@@ -60,7 +60,7 @@ def list_calendars():
             print('-' * 50)
 
 def get_month_range(target_month):
-    """指定された月の開始日と終了日を取得"""
+    """指定された月の開始日と終了日を取得（前月最終日を含む）"""
     today = datetime.today()
     
     if target_month == "current":
@@ -74,12 +74,24 @@ def get_month_range(target_month):
             year = today.year
             month = today.month + 1
     
+    # 前月の最終日を取得
+    if month == 1:
+        prev_month = 12
+        prev_year = year - 1
+    else:
+        prev_month = month - 1
+        prev_year = year
+    
+    _, prev_month_last_day = calendar.monthrange(prev_year, prev_month)
+    
+    # 当月の最終日を取得
     _, last_day = calendar.monthrange(year, month)
     
-    start_date = datetime(year, month, 1, 0, 0, 0).isoformat() + 'Z'
+    # 前月最終日から当月最終日までの範囲を設定
+    start_date = datetime(prev_year, prev_month, prev_month_last_day, 0, 0, 0).isoformat() + 'Z'
     end_date = datetime(year, month, last_day, 23, 59, 59).isoformat() + 'Z'
     
-    return start_date, end_date
+    return start_date, end_date, (prev_year, prev_month, prev_month_last_day)
 
 def calculate_duration(event):
     """イベントの所要時間を計算（分単位）"""
@@ -98,7 +110,8 @@ def calculate_duration(event):
 def analyze_events(calendar_id, title, target_month):
     """指定されたカレンダーの特定タイトルのイベントを集計"""
     service = get_calendar_service()
-    start_date, end_date = get_month_range(target_month)
+    start_date, end_date, prev_month_last_day = get_month_range(target_month)
+    prev_year, prev_month, prev_month_last = prev_month_last_day
     
     events_result = service.events().list(
         calendarId=calendar_id,
@@ -122,9 +135,21 @@ def analyze_events(calendar_id, title, target_month):
         # イベントの開始時刻をdatetimeオブジェクトに変換
         start_time = datetime.fromisoformat(start_time_str.replace('Z', '+00:00'))
         
-        # 月の最終日のイベントはスキップ
-        _, last_day = calendar.monthrange(start_time.year, start_time.month)
-        if start_time.day == last_day:
+        # 現在の月の最終日のイベントはスキップするが、前月の最終日は含める
+        is_prev_month_last_day = (start_time.year == prev_year and 
+                                  start_time.month == prev_month and 
+                                  start_time.day == prev_month_last)
+        
+        # 当月の最終日かどうかを確認
+        current_month = prev_month + 1 if prev_month < 12 else 1
+        current_year = prev_year if prev_month < 12 else prev_year + 1
+        _, current_month_last_day = calendar.monthrange(current_year, current_month)
+        is_current_month_last_day = (start_time.year == current_year and
+                                    start_time.month == current_month and
+                                    start_time.day == current_month_last_day)
+        
+        # 当月の最終日はスキップするが、前月の最終日は含める
+        if is_current_month_last_day and not is_prev_month_last_day:
             continue
             
         if title.lower() in event.get('summary', '').lower():
