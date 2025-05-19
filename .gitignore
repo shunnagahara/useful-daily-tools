@@ -7,3 +7,12 @@ speech_to_text_secret_*.apps.googleusercontent.com
 useful-daily-tools-*.json
 test*.mp4
 script.txt
+download_nltk.py
+extract_keywords_bert-base.py
+extract_keywords_pke.py
+extracts-noun-spacy-ginza-text.txt
+extracts-noun-spacy-ginza.py
+extracts-noun-spacy-janome.py
+extracts-related-words-openai-chatgpt.py
+extracts-related-words-openai-embeddings.py
+payload.json
